@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RSVP Admin — Jason & Angel</title>
+<style>
+body{font-family:Arial,sans-serif;background:#f7f1e8;color:#302622;margin:0;padding:30px}.wrap{max-width:1100px;margin:auto}h1{color:#641f32}input,button{padding:12px;margin:5px 0}button{background:#641f32;color:white;border:0;cursor:pointer}table{width:100%;border-collapse:collapse;background:white;margin-top:20px}th,td{padding:12px;border:1px solid #ddd;text-align:left}th{background:#641f32;color:#fff}.stats{display:flex;gap:15px;flex-wrap:wrap}.stat{background:white;padding:18px;min-width:150px;border:1px solid #ddd}.muted{color:#777}
+</style></head><body><div class="wrap">
+<h1>Jason &amp; Angel — RSVP Admin</h1>
+<p class="muted">Enter the admin key configured in Apps Script.</p>
+<input id="key" type="password" placeholder="Admin key"><button onclick="load()">Load RSVPs</button>
+<div id="stats" class="stats"></div><div id="out"></div>
+<script>
+const API_URL="PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
+async function load(){
+ const key=document.getElementById("key").value;const out=document.getElementById("out");
+ if(API_URL.includes("PASTE_")){out.textContent="Connect the Apps Script URL first.";return}
+ out.textContent="Loading…";
+ try{const r=await fetch(API_URL+"?key="+encodeURIComponent(key));const d=await r.json();if(!d.ok)throw Error(d.error);
+ document.getElementById("stats").innerHTML=`<div class="stat"><b>Total responses</b><br>${d.stats.total}</div><div class="stat"><b>Accepts</b><br>${d.stats.accepts}</div><div class="stat"><b>Declines</b><br>${d.stats.declines}</div><div class="stat"><b>Guests attending</b><br>${d.stats.guests}</div>`;
+ let h="<table><tr><th>Date</th><th>Full Name</th><th>Attendance</th><th>Guests</th><th>Message</th></tr>";
+ d.rows.forEach(x=>h+=`<tr><td>${esc(x.timestamp)}</td><td>${esc(x.name)}</td><td>${esc(x.attendance)}</td><td>${esc(x.guests)}</td><td>${esc(x.message||"")}</td></tr>`);h+="</table>";out.innerHTML=h;
+ }catch(e){out.textContent="Could not load RSVPs. Check the admin key and deployment."}
+}
+function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+</script></div></body></html>
